@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>梁树帅 | 个人主页</title>
+<link rel="icon" type="image/png" href="images/favicon.png">
+<!--
+  个人主页 · 梁树帅
+  说明：CSS 全部写在内部样式表（style 标签）中；JavaScript 全部写在页面底部（script 标签）中。
+  结构：页面头部与导航 → 个人简介 → 关于我 → 作品展示 → 竞赛荣誉 → 留言联系 → 返回顶部 → 页脚
+-->
+<style>
+/* ================= 主题变量：换配色只改这里 ================= */
+:root{
+  --bg:            #070c16;
+  --header-bg:     rgba(7,12,22,.72);
+  --footer-bg:     rgba(7,12,22,.55);
+  --panel:         rgba(255,255,255,.05);
+  --panel-2:       rgba(255,255,255,.09);
+  --line:          rgba(255,255,255,.10);
+  --text:          #e6edf8;
+  --title:         #ffffff;
+  --muted:         #94a4bc;
+  --brand:         #2dd4bf;              /* 主色：青绿 */
+  --brand-2:       #38bdf8;              /* 辅色：天蓝 */
+  --on-brand:      #04121a;              /* 渐变底色上的文字色 */
+  --glow-1:        rgba(45,212,191,.32);
+  --glow-2:        rgba(56,189,248,.20);
+  --shadow:        0 18px 44px -20px rgba(0,0,0,.85);
+  --shadow-hover:  0 30px 64px -22px rgba(45,212,191,.42);
+  --radius:        18px;
+}
+
+/* ================= 基础重置 ================= */
+*{ margin:0; padding:0; box-sizing:border-box; }
+html{ scroll-behavior:smooth; }            /* 锚点跳转平滑滚动 */
+body{
+  font-family:"Microsoft YaHei","PingFang SC","Hiragino Sans GB",system-ui,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.75;
+  overflow-x:hidden;
+}
+/* 页面背景的柔光，纯 CSS 绘制，不依赖图片 */
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  background:
+    radial-gradient(58vw 58vw at 10% -12%, var(--glow-1), transparent 62%),
+    radial-gradient(48vw 48vw at 94% 6%,  var(--glow-2), transparent 64%),
+    radial-gradient(55vw 55vw at 50% 112%, var(--glow-2), transparent 66%);
+}
+img{ display:block; max-width:100%; }
+
+/* ================= 1. 页面头部与导航 ================= */
+.site-header{
+  position:sticky;
+  top:0;
+  z-index:50;
+  background:var(--header-bg);
+  border-bottom:1px solid var(--line);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+}
+.header-inner{
+  max-width:1120px;
+  margin:0 auto;
+  padding:13px 22px;
+  display:flex;                        /* Flex：品牌名与导航左右分栏 */
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  flex-wrap:wrap;
+}
+.logo{
+  font-size:19px;
+  font-weight:700;
+  letter-spacing:.6px;
+  color:var(--title);
+  white-space:nowrap;
+}
+.logo span{ color:var(--brand); }
+.nav-list{
+  display:flex;                        /* Flex：导航项横向排列 */
+  flex-wrap:wrap;
+  list-style:none;
+  gap:6px;
+}
+.nav-item{
+  display:block;
+  padding:8px 16px;
+  border-radius:999px;                 /* 圆角胶囊 */
+  color:var(--muted);
+  font-size:15px;
+  text-decoration:none;
+  transition:color .28s ease, background .28s ease, transform .28s ease, box-shadow .28s ease;
+}
+/* 鼠标移入时由 JavaScript 添加 .active 实现高亮（按要求用 JS，不用 :hover 替代） */
+.nav-item.active{
+  color:var(--on-brand);
+  background:linear-gradient(135deg,var(--brand),var(--brand-2));
+  box-shadow:0 10px 22px -10px var(--glow-1);
+  transform:translateY(-1px);
+}
+
+/* ================= 2. 个人简介区域 ================= */
+.profile{
+  position:relative;
+  z-index:1;
+  max-width:1120px;
+  margin:0 auto;
+  padding:74px 22px 34px;
+  text-align:center;
+}
+/* 头像外圈渐变光环 */
+.avatar-ring{
+  width:174px;
+  height:174px;
+  margin:0 auto 24px;
+  padding:5px;
+  border-radius:50%;
+  background:linear-gradient(135deg,var(--brand),var(--brand-2));
+  box-shadow:0 0 0 8px var(--panel), 0 22px 52px -20px var(--glow-1);
+}
+.avatar{
+  width:100%;
+  height:100%;
+  border-radius:50%;
+  object-fit:cover;                    /* 证件照裁成圆形，人脸居中偏上 */
+  object-position:center 16%;
+}
+.profile-name{
+  font-size:clamp(30px,5vw,44px);
+  color:var(--title);
+  letter-spacing:2px;
+  line-height:1.3;
+}
+.profile-tag{
+  margin-top:10px;
+  font-size:16px;
+  letter-spacing:1px;
+  color:var(--brand);
+}
+.profile-desc{
+  max-width:660px;
+  margin:16px auto 0;
+  font-size:15px;
+  color:var(--muted);
+}
+/* 数据亮点：Flex 多列，窄屏自动换行 */
+.stats{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:14px;
+  margin-top:34px;
+}
+.stat{
+  flex:1 1 175px;
+  max-width:235px;
+  padding:18px 14px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:var(--panel);
+  box-shadow:var(--shadow);
+  transition:transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+}
+.stat:hover{
+  transform:translateY(-4px);
+  border-color:var(--brand);
+  box-shadow:var(--shadow-hover);
+}
+.stat b{
+  display:block;
+  font-size:27px;
+  line-height:1.25;
+  background:linear-gradient(135deg,var(--brand),var(--brand-2));
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+.stat span{ font-size:13px; color:var(--muted); }
+/* 封面页入口 */
+.cover-link{
+  display:inline-block;
+  margin-top:30px;
+  padding:9px 22px;
+  font-size:14px;
+  color:var(--brand);
+  text-decoration:none;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:var(--panel);
+  transition:all .28s ease;
+}
+.cover-link:hover{
+  color:var(--on-brand);
+  border-color:transparent;
+  background:linear-gradient(135deg,var(--brand),var(--brand-2));
+  transform:translateY(-2px);
+}
+
+/* ================= 区块通用样式 ================= */
+main{ position:relative; z-index:1; }
+.block{
+  max-width:1120px;
+  margin:0 auto;
+  padding:54px 22px;
+}
+.block h2{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  font-size:clamp(21px,3vw,27px);
+  color:var(--title);
+  margin-bottom:10px;
+}
+/* 标题前的小色块装饰 */
+.block h2::before{
+  content:"";
+  width:6px;
+  height:26px;
+  border-radius:4px;
+  background:linear-gradient(180deg,var(--brand),var(--brand-2));
+}
+.block .lead{
+  margin-bottom:26px;
+  font-size:15px;
+  color:var(--muted);
+}
+
+/* ================= 3(1). 关于我 ================= */
+.about-grid{
+  display:flex;
+  flex-wrap:wrap;
+  gap:22px;
+}
+.about-text{
+  flex:2 1 400px;
+  padding:24px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--panel);
+  box-shadow:var(--shadow);
+}
+.about-text p{ font-size:15px; color:var(--text); }
+.about-text p + p{ margin-top:12px; }
+.about-text strong{ color:var(--brand); }
+.about-side{
+  flex:1 1 270px;
+  padding:24px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--panel);
+  box-shadow:var(--shadow);
+}
+.about-side h3{
+  font-size:16px;
+  color:var(--title);
+  margin-bottom:12px;
+}
+.about-side dl{ font-size:14.5px; }
+.about-side dt{
+  margin-top:12px;
+  color:var(--muted);
+  font-size:13px;
+}
+.about-side dd{ color:var(--text); }
+.about-side dt:first-child{ margin-top:0; }
+
+/* ================= 3(2). 作品展示（Flex 多行多列卡片） ================= */
+.work-wrap{
+  display:flex;                        /* Flex 多行多列布局 */
+  flex-wrap:wrap;
+  gap:22px;
+}
+.card{
+  flex:1 1 305px;                      /* 一行三列，窄屏自动换行 */
+  max-width:352px;
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:var(--radius);         /* 圆角 */
+  overflow:hidden;
+  box-shadow:var(--shadow);            /* 阴影 */
+  transition:transform .35s ease, box-shadow .35s ease, border-color .35s ease;
+}
+/* 鼠标悬浮平滑放大 */
+.card:hover{
+  transform:scale(1.035);
+  border-color:var(--brand);
+  box-shadow:var(--shadow-hover);
+}
+.card img{
+  width:100%;
+  height:188px;
+  object-fit:cover;
+  filter:brightness(1.18) saturate(1.06);
+  border-bottom:1px solid var(--line);
+}
+.card-body{ padding:16px 18px 20px; }
+.card-body h3{
+  font-size:17px;
+  color:var(--title);
+  margin-bottom:7px;
+}
+.card-body p{
+  font-size:14px;
+  color:var(--muted);
+}
+.card-tag{
+  display:inline-block;
+  margin-top:12px;
+  padding:3px 11px;
+  font-size:12px;
+  color:var(--brand);
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:var(--panel-2);
+}
+
+/* ================= 竞赛荣誉 ================= */
+.cert-wall{
+  display:flex;
+  flex-wrap:wrap;
+  gap:14px;
+  margin-bottom:26px;
+}
+.cert-wall figure{
+  flex:1 1 calc(33.333% - 10px);   /* 一行三列，六张证书正好两行 */
+  min-width:0;
+  border:1px solid var(--line);
+  border-radius:14px;
+  overflow:hidden;
+  background:var(--panel);
+  box-shadow:var(--shadow);
+  transition:transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+}
+.cert-wall figure:hover{
+  transform:translateY(-5px);
+  border-color:var(--brand);
+  box-shadow:var(--shadow-hover);
+}
+.cert-wall img{
+  width:100%;
+  height:148px;
+  object-fit:cover;
+}
+.cert-wall figcaption{
+  padding:9px 12px;
+  font-size:12.5px;
+  color:var(--muted);
+  text-align:center;
+}
+.honor-list{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  list-style:none;
+}
+.honor-list li{
+  flex:1 1 245px;
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  padding:11px 16px;
+  font-size:14px;
+  color:var(--text);
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:var(--panel);
+  transition:border-color .28s ease, transform .28s ease;
+}
+.honor-list li:hover{
+  border-color:var(--brand);
+  transform:translateX(3px);
+}
+.honor-list li em{
+  font-style:normal;
+  font-size:13px;
+  color:var(--muted);
+  white-space:nowrap;
+}
+
+/* ================= 4. 留言联系表单 ================= */
+.contact-card{
+  padding:28px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--panel);
+  box-shadow:var(--shadow);
+}
+.form-grid{
+  display:flex;
+  flex-wrap:wrap;
+  gap:16px;
+}
+.field{
+  flex:1 1 260px;
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+}
+.field.full{ flex:1 1 100%; }
+.field label{
+  font-size:14px;
+  color:var(--muted);
+}
+input, textarea{
+  font:inherit;
+  color:var(--text);
+  background:var(--panel-2);
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:12px 14px;
+  outline:none;
+  transition:border-color .25s ease, box-shadow .25s ease;
+}
+input::placeholder, textarea::placeholder{ color:var(--muted); opacity:.75; }
+input:focus, textarea:focus{
+  border-color:var(--brand);
+  box-shadow:0 0 0 3px var(--glow-1);
+}
+textarea{
+  min-height:132px;
+  resize:vertical;
+}
+.btn{
+  margin-top:6px;
+  padding:13px 34px;
+  font:inherit;
+  font-weight:600;
+  color:var(--on-brand);
+  border:none;
+  border-radius:999px;
+  cursor:pointer;
+  background:linear-gradient(135deg,var(--brand),var(--brand-2));
+  box-shadow:0 12px 30px -12px var(--glow-1);
+  transition:transform .25s ease, filter .25s ease, box-shadow .25s ease;
+}
+.btn:hover{
+  transform:translateY(-2px);
+  filter:brightness(1.06);
+  box-shadow:0 18px 36px -12px var(--glow-1);
+}
+.tip{
+  margin-top:14px;
+  font-size:13px;
+  color:var(--muted);
+}
+
+/* ================= 5. 返回顶部按钮 ================= */
+#topBtn{
+  position:fixed;                      /* 固定定位在页面右下角 */
+  right:28px;
+  bottom:28px;
+  z-index:80;
+  width:50px;
+  height:50px;
+  display:none;                        /* 默认隐藏，滚动超过 200px 后由 JS 显示 */
+  align-items:center;
+  justify-content:center;
+  font-size:20px;
+  font-weight:700;
+  color:var(--on-brand);
+  border:none;
+  border-radius:50%;
+  cursor:pointer;
+  background:linear-gradient(135deg,var(--brand),var(--brand-2));
+  box-shadow:0 16px 32px -12px var(--glow-1);
+  transition:transform .25s ease;
+}
+#topBtn:hover{ transform:translateY(-4px) scale(1.06); }
+
+/* ================= 6. 页脚 ================= */
+footer{
+  position:relative;
+  z-index:1;
+  margin-top:36px;
+  padding:34px 22px;
+  text-align:center;
+  font-size:14px;
+  color:var(--muted);
+  border-top:1px solid var(--line);
+  background:var(--footer-bg);
+}
+footer p + p{ margin-top:7px; }
+footer strong{ color:var(--title); font-weight:600; }
+
+/* ================= 入场动画 ================= */
+@keyframes fadeUp{
+  from{ opacity:.35; transform:translateY(16px); }
+  to  { opacity:1;   transform:translateY(0); }
+}
+.reveal{ animation:fadeUp .55s ease; }
+
+/* ================= 响应式适配 ================= */
+@media (max-width:720px){
+  .header-inner{ padding:11px 16px; }
+  .logo{ font-size:17px; }
+  .nav-item{ padding:7px 12px; font-size:14px; }
+  .profile{ padding:52px 16px 26px; }
+  .avatar-ring{ width:142px; height:142px; }
+  .block{ padding:42px 16px; }
+  .card, .cert-wall figure{ max-width:none; }
+  .contact-card{ padding:20px; }
+  #topBtn{ right:16px; bottom:16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============ 1. 页面头部与导航 ============ -->
+<header class="site-header">
+  <div class="header-inner">
+    <div class="logo">梁树帅<span> · </span>个人主页</div>
+    <nav>
+      <ul class="nav-list">
+        <li><a href="#home"    class="nav-item">首页</a></li>
+        <li><a href="#about"   class="nav-item">关于我</a></li>
+        <li><a href="#works"   class="nav-item">作品展示</a></li>
+        <li><a href="#honor"   class="nav-item">竞赛荣誉</a></li>
+        <li><a href="#contact" class="nav-item">留言联系</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<!-- ============ 2. 个人简介区域 ============ -->
+<section class="profile reveal" id="home">
+  <!-- 头像：使用 images 文件夹内的相对路径 -->
+  <div class="avatar-ring">
+    <img class="avatar" src="images/avatar.jpg" alt="梁树帅的个人头像">
+  </div>
+  <h2 class="profile-name">梁树帅</h2>
+  <p class="profile-tag">数字媒体技术专业 · 目标岗位：Agent 开发工程师</p>
+  <p class="profile-desc">
+    山东女子学院数字媒体技术专业本科生，班长。三年学业成绩专业第一（绩点 4.26 / 综测 97.59），
+    两获国家奖学金；把大模型能力做成真正可用的产品，是我现在最想做的事。
+  </p>
+
+  <!-- 数据亮点 -->
+  <div class="stats">
+    <div class="stat"><b>4.26</b><span>平均绩点</span></div>
+    <div class="stat"><b>1 / 99</b><span>专业排名</span></div>
+    <div class="stat"><b>2 次</b><span>国家奖学金</span></div>
+    <div class="stat"><b>8 项</b><span>国家级竞赛奖项</span></div>
+  </div>
+
+  <a class="cover-link" href="index.html">← 返回封面页</a>
+</section>
+
+<main>
+  <!-- ============ 3(1). 关于我 ============ -->
+  <section class="block reveal" id="about">
+    <h2>关于我</h2>
+    <p class="lead">从网页前端到图像算法，再到 Agent 应用开发，我在一条主线上持续深入。</p>
+
+    <div class="about-grid">
+      <div class="about-text">
+        <p>
+          我的专业是<strong>数字媒体技术</strong>，核心课程覆盖数据结构、算法设计、Web 前端开发与计算机图形学。
+          课堂上打下的前端基础，让我能把算法与模型真正落到用户能点、能看、能用的界面上。
+        </p>
+        <p>
+          学习方向上，我目前聚焦<strong>图像算法</strong>与<strong>Agent 应用开发</strong>：
+          一方面通过数学建模与算法竞赛训练建模和编码能力；另一方面用自建的 Agent 工作流完成了落地项目，
+          并在其中接入 RAG 知识问答，解决模型「答不准、答不实」的问题。
+        </p>
+        <p>
+          兴趣爱好是算法竞赛、开源项目与长跑。竞赛让我习惯在有限时间里把问题拆清楚，
+          长跑则提醒我：稳定的节奏比短期的爆发更可靠。
+        </p>
+      </div>
+
+      <div class="about-side">
+        <h3>基本信息</h3>
+        <dl>
+          <dt>学校</dt><dd>山东女子学院</dd>
+          <dt>专业</dt><dd>数字媒体技术</dd>
+          <dt>担任职务</dt><dd>班长</dd>
+          <dt>MBTI</dt><dd>INFJ</dd>
+          <dt>学习方向</dt><dd>图像算法 / Agent 开发</dd>
+          <dt>座右铭</dt><dd>把复杂的问题拆到可以动手为止</dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 3(2). 作品展示：Flex 多行多列卡片，每张含图片、标题、简短描述 ============ -->
+  <section class="block reveal" id="works">
+    <h2>作品展示</h2>
+    <p class="lead">六个代表性作品与竞赛成果，把鼠标移到卡片上可以看到放大效果。</p>
+
+    <div class="work-wrap">
+      <!-- 作品 1 -->
+      <article class="card">
+        <img src="images/work-debate-home.png" alt="DebateCoach AI 辩论教练系统训练总览界面">
+        <div class="card-body">
+          <h3>DebateCoach · AI 辩论教练</h3>
+          <p>自建 Agent 工作流的辩论训练平台：一键生成七席对局、AI 与真人混排座位、实时发言转写，赛后自动出具四维能力评分报告。</p>
+          <span class="card-tag">Agent 主线 · 全栈自研</span>
+        </div>
+      </article>
+
+      <!-- 作品 2 -->
+      <article class="card">
+        <img src="images/work-debate-report.png" alt="DebateCoach 赛后复盘与能力评分报告界面">
+        <div class="card-body">
+          <h3>DebateCoach · 赛后复盘引擎</h3>
+          <p>把一场对局的 13 个发言段拆成可定位的评分证据：逻辑性、反驳有效性、表达力、团队贡献四维打分，并给出下一场可执行的改进动作。</p>
+          <span class="card-tag">LLM 评分 · 证据可追溯</span>
+        </div>
+      </article>
+
+      <!-- 作品 3 -->
+      <article class="card">
+        <img src="images/work-lab-ai.png" alt="人工智能实验室管理系统教师端 AI Sup 助手界面">
+        <div class="card-body">
+          <h3>智能实验室管理系统 · AI Sup</h3>
+          <p>基于自建 Agent 工作流的人工智能实验室管理信息系统：12 张数据表、四类角色权限，教师端接入 RAG 知识问答，按技能标签检索学生。</p>
+          <span class="card-tag">计算机设计大赛 · 国家级二等奖</span>
+        </div>
+      </article>
+
+      <!-- 作品 4 -->
+      <article class="card">
+        <img src="images/work-legal.png" alt="法律智询 Campus Legal AI 工作台界面">
+        <div class="card-body">
+          <h3>法律智询 · Campus Legal AI</h3>
+          <p>面向校园场景的法律咨询系统：自然语言描述即自动匹配法条、关联案例并生成建议，配套热词词云与咨询分类趋势看板。</p>
+          <span class="card-tag">RAG 检索 · 法条关联</span>
+        </div>
+      </article>
+
+      <!-- 作品 5 -->
+      <article class="card">
+        <img src="images/work-study.png" alt="自习室预约管理系统后台预约管理界面">
+        <div class="card-body">
+          <h3>自习室预约管理系统</h3>
+          <p>座位预约的完整后台：用户与座位管理、预约记录的筛选与状态流转、数据统计看板，支持按用户与座位双维度检索。</p>
+          <span class="card-tag">Java 后端 · 管理端</span>
+        </div>
+      </article>
+
+      <!-- 作品 6 -->
+      <article class="card">
+        <img src="images/work-debate-room.png" alt="DebateCoach 对局房间实时发言界面">
+        <div class="card-body">
+          <h3>DebateCoach · 实时对局房间</h3>
+          <p>九席对局的实时现场：倒计时、实况文字稿、回合进程与座位状态同步推进，AI 对手按人格模板接替发言。</p>
+          <span class="card-tag">实时同步 · 多智能体</span>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ============ 竞赛荣誉 ============ -->
+  <section class="block reveal" id="honor">
+    <h2>竞赛荣誉</h2>
+    <p class="lead">累计 8 项国家级、15 项省级、30 项校级奖项，以下为代表性证书与荣誉。</p>
+
+    <!-- 证书墙 -->
+    <div class="cert-wall">
+      <figure>
+        <img src="images/cert-1.jpg" alt="国家奖学金证书">
+        <figcaption>国家奖学金（2023-2024）</figcaption>
+      </figure>
+      <figure>
+        <img src="images/cert-2.jpg" alt="中国大学生计算机设计大赛国家级二等奖证书">
+        <figcaption>计算机设计大赛 国二</figcaption>
+      </figure>
+      <figure>
+        <img src="images/cert-3.jpg" alt="蓝桥杯全国总决赛三等奖证书">
+        <figcaption>蓝桥杯 国赛三等奖</figcaption>
+      </figure>
+      <figure>
+        <img src="images/cert-4.jpg" alt="全国大学生 AI 科技竞赛一等奖证书">
+        <figcaption>全国大学生 AI 科技竞赛 国一</figcaption>
+      </figure>
+      <figure>
+        <img src="images/cert-5.jpg" alt="全国普通话大赛国家级三等奖证书">
+        <figcaption>全国普通话大赛 国三</figcaption>
+      </figure>
+      <figure>
+        <img src="images/cert-6.jpg" alt="华为 ICT 大赛省赛一等奖证书">
+        <figcaption>华为 ICT 大赛 省一等奖</figcaption>
+      </figure>
+    </div>
+
+    <!-- 荣誉清单 -->
+    <ul class="honor-list">
+      <li><span>国家奖学金</span><em>2023-2024 / 2024-2025</em></li>
+      <li><span>一等奖学金</span><em>三次</em></li>
+      <li><span>优秀学生干部</span><em>两次</em></li>
+      <li><span>优秀学生</span><em>三次</em></li>
+      <li><span>优秀团员</span><em>2024-2025</em></li>
+      <li><span>学习成绩优秀奖</span><em>两次</em></li>
+    </ul>
+  </section>
+
+  <!-- ============ 4. 留言联系表单 ============ -->
+  <section class="block" id="contact">
+    <h2>留言联系</h2>
+    <p class="lead">如果你想聊 Agent 应用、图像算法或者竞赛，欢迎在这里留言。</p>
+
+    <div class="contact-card">
+      <!-- 表单：姓名 + 邮箱 + 留言 + 提交按钮，提交时由 JS 校验非空 -->
+      <form id="myForm" class="form-grid">
+        <div class="field">
+          <label for="username">姓名</label>
+          <input type="text" id="username" name="username" placeholder="请输入你的姓名">
+        </div>
+        <div class="field">
+          <label for="email">邮箱</label>
+          <input type="email" id="email" name="email" placeholder="请输入你的邮箱">
+        </div>
+        <div class="field full">
+          <label for="msg">留言内容</label>
+          <textarea id="msg" name="msg" placeholder="想说的话写在这里……"></textarea>
+        </div>
+        <div class="field full">
+          <button type="submit" class="btn">提交留言</button>
+          <p class="tip">提示：姓名和邮箱为必填项，留空提交会弹出提示。</p>
+        </div>
+      </form>
+    </div>
+  </section>
+</main>
+
+<!-- ============ 5. 返回顶部按钮 ============ -->
+<button id="topBtn" type="button" title="返回顶部" aria-label="返回顶部">↑</button>
+
+<!-- ============ 6. 页脚 ============ -->
+<footer>
+  <p><strong>山东女子学院</strong> · 数字媒体技术专业 · 梁树帅</p>
+  <p>联系方式：请通过页面底部「留言联系」表单与我取得联系</p>
+  <p>&copy; 2026 梁树帅 · 个人主页 · 保留所有权利</p>
+</footer>
+
+<script>
+/* =========================================================
+   JavaScript 三项交互（作业要求：不允许只用 CSS 替代）
+   1. 导航高亮   2. 返回顶部   3. 表单非空验证
+   ========================================================= */
+
+/* ---------- 交互 1：鼠标移入导航项切换 class 实现背景高亮 ---------- */
+var navItems = document.querySelectorAll('.nav-item');
+
+navItems.forEach(function (item) {
+  // 移入：添加 active 类，背景高亮
+  item.addEventListener('mouseover', function () {
+    this.classList.add('active');
+  });
+  // 移出：移除 active 类，取消高亮
+  item.addEventListener('mouseout', function () {
+    this.classList.remove('active');
+  });
+});
+
+/* ---------- 交互 2：监听滚动，控制返回顶部按钮的显示与隐藏 ---------- */
+var topBtn = document.getElementById('topBtn');
+
+// 页面向下滚动超过 200px 时显示按钮，回到 200px 以内则隐藏
+window.addEventListener('scroll', function () {
+  if (window.scrollY > 200) {
+    topBtn.style.display = 'flex';
+  } else {
+    topBtn.style.display = 'none';
+  }
+});
+
+// 点击按钮，平滑回到页面顶部
+topBtn.addEventListener('click', function () {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+/* ---------- 交互 3：提交表单时判断姓名、邮箱是否为空 ---------- */
+var myForm = document.getElementById('myForm');
+
+myForm.addEventListener('submit', function (e) {
+  var uname = document.getElementById('username').value.trim();
+  var mail  = document.getElementById('email').value.trim();
+
+  // 任一为空：弹出 alert 提示，并阻止表单提交
+  if (uname === '' || mail === '') {
+    alert('姓名和邮箱不能为空，请填写完整后再提交！');
+    e.preventDefault();
+    return;
+  }
+
+  // 校验通过（本作业为静态页面，这里只做前端演示，不真实提交）
+  e.preventDefault();
+  alert('留言已收到，感谢你的反馈，' + uname + '！');
+  myForm.reset();
+});
+</script>
+</body>
+</html>
