@@ -83,7 +83,22 @@ img{ display:block; max-width:100%; }
   color:var(--title);
   white-space:nowrap;
 }
-.logo span{ color:var(--brand); }
+/* 首行整段：低饱和慢速渐变，无高光带、无柔光，保持克制 */
+@keyframes logoFlow{
+  from{ background-position:0% 50%; }
+  to  { background-position:100% 50%; }
+}
+.logo-shine{
+  background:linear-gradient(90deg,
+    #94a4bc 0%,  #38bdf8 12%, #a78bfa 25%, #2dd4bf 38%, #94a4bc 50%,
+    #38bdf8 62%, #a78bfa 75%, #2dd4bf 88%, #94a4bc 100%);
+  background-size:200% 100%;
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  -webkit-text-fill-color:transparent;
+  animation:logoFlow 14s linear infinite;
+}
 .nav-list{
   display:flex;                        /* Flex：导航项横向排列 */
   flex-wrap:wrap;
@@ -138,6 +153,34 @@ img{ display:block; max-width:100%; }
   color:var(--title);
   letter-spacing:2px;
   line-height:1.3;
+}
+/* ---- 名字流光：多色渐变 + 一道亮带循环扫过（纯 CSS，无图片无 JS） ---- */
+@keyframes nameFlow{
+  from{ background-position:0% 50%; }
+  to  { background-position:100% 50%; }
+}
+.shine-name{
+  /* 0~50% 与 50~100% 色序相同，循环时不会跳帧 */
+  background:linear-gradient(90deg,
+    #2dd4bf 0%,   #38bdf8 8%,   #38bdf8 17%,  #ffffff 19%,  #ffffff 21%,
+    #38bdf8 23%,  #a78bfa 32%,  #f472b6 42%,  #2dd4bf 50%,
+    #38bdf8 58%,  #38bdf8 67%,  #ffffff 69%,  #ffffff 71%,
+    #38bdf8 73%,  #a78bfa 82%,  #f472b6 92%,  #2dd4bf 100%);
+  background-size:200% 100%;
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  -webkit-text-fill-color:transparent;
+  animation:nameFlow 5s linear infinite;
+}
+/* 主标题上的名字：加粗并带柔光，视觉重点 */
+.profile-name .shine-name{
+  font-weight:800;
+  filter:drop-shadow(0 0 16px rgba(167,139,250,.45));
+}
+/* 尊重系统「减少动态效果」设置：保留彩色但停止流动 */
+@media (prefers-reduced-motion:reduce){
+  .shine-name, .logo-shine{ animation:none; }
 }
 .profile-tag{
   margin-top:10px;
@@ -516,7 +559,7 @@ footer strong{ color:var(--title); font-weight:600; }
 <!-- ============ 1. 页面头部与导航 ============ -->
 <header class="site-header">
   <div class="header-inner">
-    <div class="logo">梁树帅<span> · </span>个人主页</div>
+    <div class="logo logo-shine">梁树帅 · 个人主页</div>
     <nav>
       <ul class="nav-list">
         <li><a href="#home"    class="nav-item">首页</a></li>
@@ -535,7 +578,7 @@ footer strong{ color:var(--title); font-weight:600; }
   <div class="avatar-ring">
     <img class="avatar" src="images/avatar.jpg" alt="梁树帅的个人头像">
   </div>
-  <h2 class="profile-name">梁树帅</h2>
+  <h2 class="profile-name"><span class="shine-name">梁树帅</span></h2>
   <p class="profile-tag">数字媒体技术专业 · 目标岗位：Agent 开发工程师</p>
   <p class="profile-desc">
     山东女子学院数字媒体技术专业本科生，班长。三年学业成绩专业第一（绩点 4.26 / 综测 97.59），
