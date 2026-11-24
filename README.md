@@ -1,2 +1,2 @@
-# lssblog
-personal-blog
+# lss
+personal
